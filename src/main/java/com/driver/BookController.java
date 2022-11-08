@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -42,33 +41,65 @@ public class BookController {
         this.id = 1;
     }
 
-    // post request /create-book
-    // pass book as request body
     @PostMapping("/create-book")
     public ResponseEntity<Book> createBook(@RequestBody Book book){
-        // Your code goes here.
+        book.setId(this.id);
+        //auto increment id
+        this.id = this.id+1;
+        bookList.add(book);
         return new ResponseEntity<>(book, HttpStatus.CREATED);
     }
 
-    // get request /get-book-by-id/{id}
-    // pass id as path variable
-    // getBookById()
+    @GetMapping("/get-book-by-id/{id}")
+    public ResponseEntity getBookById(@PathVariable int id){
+        for(Book b : bookList){
+            if(b.getId()==id){
+                return new ResponseEntity<>(b, HttpStatus.OK);
+            }
+        }
+        return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+    }
 
-    // delete request /delete-book-by-id/{id}
-    // pass id as path variable
-    // deleteBookById()
+    @GetMapping("/get-all-books")
+    public ResponseEntity getAllBooks(){
+        return new ResponseEntity<>(bookList,HttpStatus.OK);
+    }
 
-    // get request /get-all-books
-    // getAllBooks()
+    @GetMapping("/get-book-by-author/{author}")
+    public Book getBookByAuthor(@PathVariable String name){
+        for(Book book : bookList){
+            String bookAuthor = book.getAuthor();
+            if(bookAuthor.compareTo(name) == 0)
+                return book;
+        }
+        return null;
+    }
 
-    // delete request /delete-all-books
-    // deleteAllBooks()
+    @GetMapping("/get-book-by-genre/{genre}")
+    public Book getBookByGenre(@PathVariable String genre){
+        for(Book book : bookList){
+            String bookGenre = book.getGenre();
+            if(bookGenre.compareTo(genre) == 0)
+                return book;
+        }
+        return null;
+    }
 
-    // get request /get-books-by-author
-    // pass author name as request param
-    // getBooksByAuthor()
+    @DeleteMapping("/delete-book-by-id/{id}")
+    public ResponseEntity deleteBookById(@PathVariable int id){
+        for(int i=0; i<bookList.size(); i++){
+            if(bookList.get(i).getId()==id){
+                bookList.remove(i);
+                return new ResponseEntity<>("success",HttpStatus.OK);
+            }
+        }
+        return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+    }
 
-    // get request /get-books-by-genre
-    // pass genre name as request param
-    // getBooksByGenre()
+    @DeleteMapping ("/delete-all-books")
+    public ResponseEntity deleteAllBooks(){
+        bookList = new ArrayList<>();
+        return new ResponseEntity<>("All books deleted", HttpStatus.OK);
+    }
+
 }
